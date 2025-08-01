@@ -135,163 +135,229 @@
         }
 
         function loadWeekSchedule(container) {
-            const weekView = document.createElement('div');
-            weekView.className = 'week-view';
+    const weekView = document.createElement('div');
+    weekView.className = 'week-view';
 
-            const t = translations[currentLanguage];
-            const dayNames = currentLanguage === 'th' 
-                ? [t.sun, t.mon, t.tue, t.wed, t.thu, t.fri, t.sat]
-                : [t.sun, t.mon, t.tue, t.wed, t.thu, t.fri, t.sat];
+    const t = translations[currentLanguage];
+    const dayNames = currentLanguage === 'th' 
+        ? [t.sun, t.mon, t.tue, t.wed, t.thu, t.fri, t.sat]
+        : [t.sun, t.mon, t.tue, t.wed, t.thu, t.fri, t.sat];
 
-            // Get first week of August 2025 (1-7)
-            for (let i = 0; i < 7; i++) {
-                const dayDate = `08/${String(i + 1).padStart(2, '0')}/2025`;
-                const dayData = scheduleData.find(day => day.Date === dayDate);
-                
-                const dayDiv = document.createElement('div');
-                dayDiv.className = 'week-day';
-                if (i === 0) dayDiv.classList.add('today'); // Mark first day as today for demo
+    // คำนวณสัปดาห์ปัจจุบัน
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    
+    // หาวันอาทิตย์ที่เป็นจุดเริ่มต้นของสัปดาห์
+    const dayOfWeek = today.getDay(); // 0 = อาทิตย์, 1 = จันทร์, ...
+    startOfWeek.setDate(today.getDate() - dayOfWeek);
 
-                const dayHeader = document.createElement('div');
-                dayHeader.className = 'week-day-header';
-                dayHeader.textContent = `${dayNames[i]} ${i + 1}`;
+    // สร้าง 7 วันในสัปดาห์
+    for (let i = 0; i < 7; i++) {
+        const currentDate = new Date(startOfWeek);
+        currentDate.setDate(startOfWeek.getDate() + i);
+        
+        // สร้าง date string ในรูปแบบ MM/DD/YYYY
+        const dateStr = `${String(currentDate.getMonth() + 1).padStart(2, '0')}/${String(currentDate.getDate()).padStart(2, '0')}/${currentDate.getFullYear()}`;
+        const dayData = scheduleData.find(day => day.Date === dateStr);
+        
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'week-day';
+        
+        // เช็คว่าเป็นวันปัจจุบันหรือไม่
+        const isToday = currentDate.toDateString() === today.toDateString();
+        if (isToday) dayDiv.classList.add('today');
 
-                dayDiv.appendChild(dayHeader);
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'week-day-header';
+        
+        // แสดงชื่อวันและวันที่
+        const dayName = dayNames[i];
+        const dayNumber = currentDate.getDate();
+        const monthName = currentLanguage === 'th' 
+            ? getThaiMonthName(currentDate.getMonth())
+            : getEnglishMonthName(currentDate.getMonth());
+        
+        dayHeader.innerHTML = `
+            <div style="font-size: 1em; margin-bottom: 5px;">${dayName}</div>
+            <div style="font-size: 0.9em; opacity: 0.8;">${dayNumber} ${monthName}</div>
+        `;
 
-                if (dayData) {
-                    const timeSlots = Object.keys(dayData).filter(key => 
-                        key !== 'Date' && key !== 'Day'
-                    );
+        dayDiv.appendChild(dayHeader);
 
-                    timeSlots.forEach(timeSlot => {
-                        const vehicleNumber = dayData[timeSlot];
-                        const vehicleCard = createCompactVehicleCard(vehicleNumber, timeSlot);
-                        dayDiv.appendChild(vehicleCard);
-                    });
-                }
+        // เพิ่มข้อมูลตารางงานถ้ามี
+        if (dayData) {
+            const timeSlots = Object.keys(dayData).filter(key => 
+                key !== 'Date' && key !== 'Day'
+            );
 
-                weekView.appendChild(dayDiv);
-            }
-
-            container.innerHTML = '';
-            container.appendChild(weekView);
+            timeSlots.forEach(timeSlot => {
+                const vehicleNumber = dayData[timeSlot];
+                const vehicleCard = createCompactVehicleCard(vehicleNumber, timeSlot);
+                dayDiv.appendChild(vehicleCard);
+            });
+        } else {
+            // แสดงข้อความเมื่อไม่มีตารางงาน
+            const noScheduleDiv = document.createElement('div');
+            noScheduleDiv.style.cssText = `
+                text-align: center;
+                color: #bdc3c7;
+                font-style: italic;
+                margin-top: 20px;
+                padding: 20px;
+            `;
+            noScheduleDiv.textContent = currentLanguage === 'th' ? 'ไม่มีงาน' : 'No Schedule';
+            dayDiv.appendChild(noScheduleDiv);
         }
+
+        weekView.appendChild(dayDiv);
+    }
+
+    container.innerHTML = '';
+    container.appendChild(weekView);
+}
+
+// ฟังก์ชันช่วยสำหรับชื่อเดือนภาษาไทย
+function getThaiMonthName(monthIndex) {
+    const monthNames = [
+        'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+        'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+    ];
+    return monthNames[monthIndex];
+}
+
+// ฟังก์ชันช่วยสำหรับชื่อเดือนภาษาอังกฤษ
+function getEnglishMonthName(monthIndex) {
+    const monthNames = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return monthNames[monthIndex];
+}
+
 
         function loadMonthSchedule(container) {
-            const monthView = document.createElement('div');
-            monthView.className = 'month-view';
+    const monthView = document.createElement('div');
+    monthView.className = 'month-view';
 
-            // Month header with navigation
-            const monthHeader = document.createElement('div');
-            monthHeader.className = 'month-header';
+    // ใช้เดือนปัจจุบันแทน currentMonth ถ้าต้องการ
+    const displayMonth = currentMonth.getMonth() === 7 && currentMonth.getFullYear() === 2025 
+        ? currentMonth 
+        : new Date(); // ใช้เดือนปัจจุบันถ้าไม่ใช่เดือนสิงหาคม 2025
 
-            const monthNav = document.createElement('div');
-            monthNav.className = 'month-nav';
+    // Month header with navigation
+    const monthHeader = document.createElement('div');
+    monthHeader.className = 'month-header';
 
-            const prevBtn = document.createElement('button');
-            prevBtn.className = 'nav-btn';
-            prevBtn.textContent = '‹ Previous';
-            prevBtn.onclick = () => {
-                currentMonth.setMonth(currentMonth.getMonth() - 1);
-                loadMonthSchedule(container);
-            };
+    const monthNav = document.createElement('div');
+    monthNav.className = 'month-nav';
 
-            const nextBtn = document.createElement('button');
-            nextBtn.className = 'nav-btn';
-            nextBtn.textContent = 'Next ›';
-            nextBtn.onclick = () => {
-                currentMonth.setMonth(currentMonth.getMonth() + 1);
-                loadMonthSchedule(container);
-            };
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'nav-btn';
+    prevBtn.textContent = '‹ Previous';
+    prevBtn.onclick = () => {
+        currentMonth.setMonth(currentMonth.getMonth() - 1);
+        loadMonthSchedule(container);
+    };
 
-            const monthTitle = document.createElement('h2');
-            const t = translations[currentLanguage];
-            const monthNames = currentLanguage === 'th' 
-                ? [t.january, t.february, t.march, t.april, t.may, t.june, 
-                   t.july, t.august, t.september, t.october, t.november, t.december]
-                : ['January', 'February', 'March', 'April', 'May', 'June',
-                   'July', 'August', 'September', 'October', 'November', 'December'];
-            
-            monthTitle.textContent = `${monthNames[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`;
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'nav-btn';
+    nextBtn.textContent = 'Next ›';
+    nextBtn.onclick = () => {
+        currentMonth.setMonth(currentMonth.getMonth() + 1);
+        loadMonthSchedule(container);
+    };
 
-            monthNav.appendChild(prevBtn);
-            monthNav.appendChild(nextBtn);
-            monthHeader.appendChild(monthTitle);
-            monthHeader.appendChild(monthNav);
+    const monthTitle = document.createElement('h2');
+    const t = translations[currentLanguage];
+    const monthNames = currentLanguage === 'th' 
+        ? [t.january, t.february, t.march, t.april, t.may, t.june, 
+           t.july, t.august, t.september, t.october, t.november, t.december]
+        : ['January', 'February', 'March', 'April', 'May', 'June',
+           'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    monthTitle.textContent = `${monthNames[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`;
 
-            // Month grid
-            const monthGrid = document.createElement('div');
-            monthGrid.className = 'month-grid';
+    monthNav.appendChild(prevBtn);
+    monthNav.appendChild(nextBtn);
+    monthHeader.appendChild(monthTitle);
+    monthHeader.appendChild(monthNav);
 
-            // Day headers
-            const dayNames = currentLanguage === 'th' 
-                ? [t.sun, t.mon, t.tue, t.wed, t.thu, t.fri, t.sat]
-                : [t.sun, t.mon, t.tue, t.wed, t.thu, t.fri, t.sat];
+    // Month grid
+    const monthGrid = document.createElement('div');
+    monthGrid.className = 'month-grid';
 
-            dayNames.forEach(day => {
-                const dayHeader = document.createElement('div');
-                dayHeader.className = 'month-day-header';
-                dayHeader.textContent = day;
-                monthGrid.appendChild(dayHeader);
+    // Day headers
+    const dayNames = currentLanguage === 'th' 
+        ? [t.sun, t.mon, t.tue, t.wed, t.thu, t.fri, t.sat]
+        : [t.sun, t.mon, t.tue, t.wed, t.thu, t.fri, t.sat];
+
+    dayNames.forEach(day => {
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'month-day-header';
+        dayHeader.textContent = day;
+        monthGrid.appendChild(dayHeader);
+    });
+
+    // Calendar days
+    const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+    const lastDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+    const today = new Date();
+
+    for (let i = 0; i < 42; i++) { // 6 weeks * 7 days
+        const currentDate = new Date(startDate);
+        currentDate.setDate(startDate.getDate() + i);
+
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'month-day';
+
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'month-day-number';
+        dayNumber.textContent = currentDate.getDate();
+
+        if (currentDate.getMonth() !== currentMonth.getMonth()) {
+            dayDiv.classList.add('other-month');
+        } else if (currentDate.toDateString() === today.toDateString()) {
+            dayDiv.classList.add('today'); // ใช้วันปัจจุบันจริง ๆ
+        }
+
+        dayDiv.appendChild(dayNumber);
+
+        // Add schedule data if available
+        const dateStr = `${String(currentDate.getMonth() + 1).padStart(2, '0')}/${String(currentDate.getDate()).padStart(2, '0')}/${currentDate.getFullYear()}`;
+        const dayData = scheduleData.find(day => day.Date === dateStr);
+
+        if (dayData && currentDate.getMonth() === currentMonth.getMonth()) {
+            const timeSlots = Object.keys(dayData).filter(key => 
+                key !== 'Date' && key !== 'Day'
+            );
+
+            timeSlots.slice(0, 3).forEach(timeSlot => { // Show only first 3 slots
+                const vehicleNumber = dayData[timeSlot];
+                const vehicleCard = createCompactVehicleCard(vehicleNumber, timeSlot);
+                dayDiv.appendChild(vehicleCard);
             });
 
-            // Calendar days
-            const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-            const lastDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
-            const startDate = new Date(firstDay);
-            startDate.setDate(startDate.getDate() - firstDay.getDay());
-
-            for (let i = 0; i < 42; i++) { // 6 weeks * 7 days
-                const currentDate = new Date(startDate);
-                currentDate.setDate(startDate.getDate() + i);
-
-                const dayDiv = document.createElement('div');
-                dayDiv.className = 'month-day';
-
-                const dayNumber = document.createElement('div');
-                dayNumber.className = 'month-day-number';
-                dayNumber.textContent = currentDate.getDate();
-
-                if (currentDate.getMonth() !== currentMonth.getMonth()) {
-                    dayDiv.classList.add('other-month');
-                } else if (currentDate.getDate() === 1) {
-                    dayDiv.classList.add('today'); // Mark first day as today for demo
-                }
-
-                dayDiv.appendChild(dayNumber);
-
-                // Add schedule data if available
-                const dateStr = `${String(currentDate.getMonth() + 1).padStart(2, '0')}/${String(currentDate.getDate()).padStart(2, '0')}/${currentDate.getFullYear()}`;
-                const dayData = scheduleData.find(day => day.Date === dateStr);
-
-                if (dayData && currentDate.getMonth() === currentMonth.getMonth()) {
-                    const timeSlots = Object.keys(dayData).filter(key => 
-                        key !== 'Date' && key !== 'Day'
-                    );
-
-                    timeSlots.slice(0, 3).forEach(timeSlot => { // Show only first 3 slots
-                        const vehicleNumber = dayData[timeSlot];
-                        const vehicleCard = createCompactVehicleCard(vehicleNumber, timeSlot);
-                        dayDiv.appendChild(vehicleCard);
-                    });
-
-                    if (timeSlots.length > 3) {
-                        const moreDiv = document.createElement('div');
-                        moreDiv.style.cssText = 'font-size: 0.7em; color: #7f8c8d; text-align: center; margin-top: 2px;';
-                        moreDiv.textContent = `+${timeSlots.length - 3} more`;
-                        dayDiv.appendChild(moreDiv);
-                    }
-                }
-
-                monthGrid.appendChild(dayDiv);
+            if (timeSlots.length > 3) {
+                const moreDiv = document.createElement('div');
+                moreDiv.style.cssText = 'font-size: 0.7em; color: #7f8c8d; text-align: center; margin-top: 2px;';
+                moreDiv.textContent = `+${timeSlots.length - 3} more`;
+                dayDiv.appendChild(moreDiv);
             }
-
-            monthView.appendChild(monthHeader);
-            monthView.appendChild(monthGrid);
-
-            container.innerHTML = '';
-            container.appendChild(monthView);
         }
+
+        monthGrid.appendChild(dayDiv);
+    }
+
+    monthView.appendChild(monthHeader);
+    monthView.appendChild(monthGrid);
+
+    container.innerHTML = '';
+    container.appendChild(monthView);
+}
+
 
         function createTimeSlotCard(timeSlot, vehicleNumber) {
             const timeSlotDiv = document.createElement('div');
