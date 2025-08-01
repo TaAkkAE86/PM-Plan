@@ -1,4 +1,4 @@
-# PM Schedule Dashboard
+# PM PMHV Plan
 
 A comprehensive dashboard for managing PM (Preventive Maintenance) schedules with multiple views and multi-language support.
 
