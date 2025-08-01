@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PM Schedule Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="pageTitle">PM Schedule Dashboard</h1>
+            <div class="date-info" id="currentDate"></div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <div class="view-buttons">
+                        <button class="view-btn active" data-view="today" id="btnToday">Today</button>
+                        <button class="view-btn" data-view="week" id="btnWeek">Week</button>
+                        <button class="view-btn" data-view="month" id="btnMonth">Month</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="language-toggle">
+                        <span id="langLabel">ภาษา:</span>
+                        <div class="lang-switch" id="langSwitch">
+                            <div class="lang-slider"></div>
+                        </div>
+                        <span id="langText">TH</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div id="scheduleContainer">
+                <!-- Schedule will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Modal -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-content">
+            <div class="popup-header">
+                <div class="popup-vehicle-number" id="popupVehicleNumber"></div>
+            </div>
+            
+            <div class="popup-details" id="popupDetails">
+                <!-- Details will be populated here -->
+            </div>
+            
+            <div class="popup-buttons">
+                <button class="btn btn-done" id="btnDone">✓ Done</button>
+                <button class="btn btn-close" id="btnClose">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
