@@ -16,18 +16,26 @@
 
         function setupEventListeners() {
             // View buttons
-            document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // Remove active class from all buttons
-                    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-                    // Add active class to clicked button
-                    this.classList.add('active');
-                    // Set current view
-                    currentView = this.getAttribute('data-view');
-                    // Load appropriate schedule
-                    loadSchedule();
-                });
-            });
+            // ในส่วน setupEventListeners() เพิ่มการจัดการสำหรับปุ่ม week
+document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        // Remove active class from all buttons
+        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+        // Add active class to clicked button
+        this.classList.add('active');
+        // Set current view
+        currentView = this.getAttribute('data-view');
+        
+        // ถ้าเป็น month view ให้ reset ไปที่เดือนปัจจุบัน
+        if (currentView === 'month') {
+            currentMonth = new Date(); // reset to current month
+        }
+        
+        // Load appropriate schedule
+        loadSchedule();
+    });
+});
+
 
             // Language toggle
             document.getElementById('langSwitch').addEventListener('click', function() {
