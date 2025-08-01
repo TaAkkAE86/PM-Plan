@@ -45,7 +45,7 @@
                 december: "ธันวาคม"
             },
             en: {
-                pageTitle: "PM Schedule Dashboard",
+                pageTitle: "PM PMHV Plan",
                 today: "Today",
                 week: "Week",
                 month: "Month",
@@ -1247,3 +1247,4 @@
     "process coach": "Suriya / Wootitpong"
   }
 };
+
