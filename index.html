@@ -3,21 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PM PMHV Plan</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Ford PM PMHV Plan Dashboard</title>
+    
+    <!-- Enhanced Ford App Icon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkMSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzAwMzM4NztzdG9wLW9wYWNpdHk6MSIgLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwMDY2Q0M7c3RvcC1vcGFjaXR5OjEiIC8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSIyNCIgZmlsbD0idXJsKCNncmFkMSkiLz48ZWxsaXBzZSBjeD0iOTYiIGN5PSI5NiIgcng9IjcwIiByeT0iMzAiIGZpbGw9IndoaXRlIiBzdHJva2U9IiMwMDMzODciIHN0cm9rZS13aWR0aD0iMyIvPjx0ZXh0IHg9Ijk2IiB5PSIxMDUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzNiIgZm9udC13ZWlnaHQ9IjkwMCIgZmlsbD0iIzAwMzM4NyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgbGV0dGVyLXNwYWNpbmc9IjNweCUiPkZPUkQ8L3RleHQ+PC9zdmc+">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkMSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzAwMzM4NztzdG9wLW9wYWNpdHk6MSIgLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwMDY2Q0M7c3RvcC1vcGFjaXR5OjEiIC8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSIyNCIgZmlsbD0idXJsKCNncmFkMSkiLz48ZWxsaXBzZSBjeD0iOTYiIGN5PSI5NiIgcng9IjcwIiByeT0iMzAiIGZpbGw9IndoaXRlIiBzdHJva2U9IiMwMDMzODciIHN0cm9rZS13aWR0aD0iMyIvPjx0ZXh0IHg9Ijk2IiB5PSIxMDUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzNiIgZm9udC13ZWlnaHQ9IjkwMCIgZmlsbD0iIzAwMzM4NyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgbGV0dGVyLXNwYWNpbmc9IjNweCUiPkZPUkQ8L3RleHQ+PC9zdmc+">
+    
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiRm9yZCBQTSBTY2hlZHVsZSBEYXNoYm9hcmQiLCJzaG9ydF9uYW1lIjoiRm9yZCBQTSIsInN0YXJ0X3VybCI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJ0aGVtZV9jb2xvciI6IiMwMDMzODciLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2ZmZmZmZiIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUIzYVdSMGFEMGlNVGt5SWlCb1pXbG5hSFE5SWpFNU1pSWlkbWxsZDBKdmVEMGlNQ0F3SURFNU1pQXhPVElpSUdacGJHdzlJbTV2Ym1VaUlIaHRiRzV6UFNKb2RIUndPaTh2ZDNkM0xuY3pMbTl5Wnk4eU1EQXdMM04yWnlJK1BHUmxabk0rUEd4cGJtVmhjbWR5WVdScFpXNTBJR2xrUFNKbmNtRmtNU0lpZURFOUlqQWxJaUI1TVQwaU1DVWlJSGd5UFNJeE1EQWxJaUI1TWowaU1UQXdKU0krUEhOMGIzQWdiMlptYzJWMFBTSXdKU0lpYzNSNWJHVTlJbk4wYjNBdFkyOXNiM0k2SXpBd016TTROenR6ZEc5d0xXOXdZV05wZEhrNk1TSWdMejQ4YzNSdmNDQnZabVp6WlhROUlqRXdNQ1VpSW5OMGVXeGxQU0p6ZEc5d0xXTnZiRzl5T2lNd01EWTJRME02YzNSdmNDMXZjR0ZqYVhSNU9qRWlJQzgrUEM5c2FXNWxZWEpIY21Ga2FXVnVkRDQ4TDJSbFpuTStQSEpsWTNRZ2QybGtkR2c5SWpFNU1pSWdhR1ZwWjJoMFBTSXhPVElpSUhKNFBTSXlOQ0lpWm1sc2JEMGlkWEpzS0NObmNtRmtNU2tpTHo0OFpXeHNhWEJ6WlNCamVEMGlPVFlpSUdONVBTSTVOaUlpY25nOUlqY3dJaUJ5ZVQwaU16QWlJR1pwYkd3OUluZG9hWFJsSWlCemRISnZhMlU5SWlNd01ETXpPRGNpSUhOMGNtOXJaUzEzYVdSMGFEMGlNeUl2UGp4MFpYaDBJSGc5SWprMklpQjVQU0l4TURVaUlHWnZiblF0Wm1GdGFXeDVQU0pCY21saGJDd2djMkZ1Y3kxelpYSnBaaUlnWm05dWRDMXphWHBsUFNJek5pSWdabTl1ZEMxM1pXbG5hSFE5SWpreU1DSWdabWxzYkQwaUl6QXdNek00TnlJZ2RHVjRkQzFoYm1Ob2IzSTlTVzFwWkdSc1pTSWdiR1YwZEdWeUxYTndZV05wYm1jOUlqTndlRVVpUGtaUFVrUThMM1JsZUhRK1BDOXpkbWMrIiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
+    
+    <!-- PWA Theme -->
+    <meta name="theme-color" content="#003387">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<!-- เพิ่มใน <head> ของ index.html -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="Ford PM">
+
+<!-- เพิ่ม touch icons -->
+<link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkMSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzAwMzM4NztzdG9wLW9wYWNpdHk6MSIgLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwMDY2Q0M7c3RvcC1vcGFjaXR5OjEiIC8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIHJ4PSIyMCIgZmlsbD0idXJsKCNncmFkMSkiLz48ZWxsaXBzZSBjeD0iOTAiIGN5PSI5MCIgcng9IjY1IiByeT0iMjgiIGZpbGw9IndoaXRlIiBzdHJva2U9IiMwMDMzODciIHN0cm9rZS13aWR0aD0iMyIvPjx0ZXh0IHg9IjkwIiB5PSI5OCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjMwIiBmb250LXdlaWdodD0iOTAwIiBmaWxsPSIjMDAzMzg3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBsZXR0ZXItc3BhY2luZz0iM3B4JSI+Rk9SRDwvdGV4dD48L3N2Zz4=">
+
+    
+    <!-- Push Notification -->
+    <script>
+        // Request notification permission
+        if ('Notification' in window && 'serviceWorker' in navigator) {
+            Notification.requestPermission();
+        }
+    </script>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+    
+    <!-- Connection Status with Enhanced UI -->
+    <div class="connection-status-wrapper">
+        <div class="connection-status offline" id="connectionStatus">
+            <span class="status-icon">●</span>
+            <span class="status-text">Offline</span>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="ford-loader">
+                <div class="ford-oval">FORD</div>
+                <div class="loader-text">Loading...</div>
+            </div>
+        </div>
+    </div>
+    
     <div class="container">
+        <!-- Enhanced Header -->
         <div class="header">
-            <h1 id="pageTitle">PM PMHV Plan</h1>
+            <div class="header-top">
+                <div class="ford-logo">
+                    <div class="ford-oval animated">
+                        <span class="ford-text">FORD</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="header-btn" id="settingsBtn" title="Settings">⚙️</button>
+                    <button class="header-btn" id="fullscreenBtn" title="Fullscreen">⛶</button>
+                    <button class="header-btn" id="darkModeBtn" title="Dark Mode">🌙</button>
+                </div>
+            </div>
+            
+            <h1 id="pageTitle">Ford PM PMHV Plan Dashboard</h1>
             <div class="date-info" id="currentDate"></div>
+            
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0% Complete</div>
+            </div>
             
             <div class="controls">
                 <div class="control-group">
                     <div class="view-buttons">
-                        <button class="view-btn active" data-view="today" id="btnToday">Today</button>
-                        <button class="view-btn" data-view="week" id="btnWeek">Week</button>
-                        <button class="view-btn" data-view="month" id="btnMonth">Month</button>
+                        <button class="view-btn active" data-view="today" id="btnToday">
+                            <span class="btn-icon">📅</span>
+                            <span class="btn-text">Today</span>
+                        </button>
+                        <button class="view-btn" data-view="week" id="btnWeek">
+                            <span class="btn-icon">📊</span>
+                            <span class="btn-text">Week</span>
+                        </button>
+                        <button class="view-btn" data-view="month" id="btnMonth">
+                            <span class="btn-icon">🗓️</span>
+                            <span class="btn-text">Month</span>
+                        </button>
                     </div>
                 </div>
                 
@@ -26,10 +109,68 @@
                         <span id="langLabel">ภาษา:</span>
                         <div class="lang-switch" id="langSwitch">
                             <div class="lang-slider"></div>
+                            <span class="lang-option left">TH</span>
+                            <span class="lang-option right">EN</span>
                         </div>
-                        <span id="langText">TH</span>
                     </div>
                 </div>
+                
+                <div class="control-group">
+                    <button class="action-btn reset-btn" onclick="resetAllStatus()" id="resetBtn">
+                        <span class="btn-icon">🔄</span>
+                        <span class="btn-text">Reset All</span>
+                    </button>
+                    <button class="action-btn export-btn" onclick="exportData()" id="exportBtn">
+                        <span class="btn-icon">📊</span>
+                        <span class="btn-text">Export</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistics Dashboard -->
+        <div class="stats-dashboard" id="statsDashboard">
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="totalTasks">0</div>
+                    <div class="stat-label" id="totalTasksLabel">Total Tasks</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="completedTasks">0</div>
+                    <div class="stat-label" id="completedTasksLabel">Completed</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="pendingTasks">0</div>
+                    <div class="stat-label" id="pendingTasksLabel">Pending</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="efficiency">0%</div>
+                    <div class="stat-label" id="efficiencyLabel">Efficiency</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter and Search -->
+        <div class="filters-section">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search vehicles or teams..." class="search-input">
+                <button class="search-btn" id="searchBtn">🔍</button>
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all" id="filterAll">All</button>
+                <button class="filter-btn" data-filter="completed" id="filterCompleted">Completed</button>
+                <button class="filter-btn" data-filter="pending" id="filterPending">Pending</button>
+                <button class="filter-btn" data-filter="team" id="filterTeam">By Team</button>
             </div>
         </div>
         
@@ -40,23 +181,113 @@
         </div>
     </div>
 
-    <!-- Popup Modal -->
+    <!-- Enhanced Popup Modal -->
     <div class="popup-overlay" id="popupOverlay">
-        <div class="popup-content">
+        <div class="popup-content enhanced">
             <div class="popup-header">
                 <div class="popup-vehicle-number" id="popupVehicleNumber"></div>
+                <div class="popup-close" onclick="closePopup()">×</div>
             </div>
             
             <div class="popup-details" id="popupDetails">
                 <!-- Details will be populated here -->
             </div>
             
+            <div class="popup-actions">
+                <div class="action-history" id="actionHistory">
+                    <!-- History will be shown here -->
+                </div>
+            </div>
+            
             <div class="popup-buttons">
-                <button class="btn btn-done" id="btnDone">✓ Done</button>
-                <button class="btn btn-close" id="btnClose">Close</button>
+                <button class="btn btn-done" id="btnDone">
+                    <span class="btn-icon">✓</span>
+                    <span class="btn-text">Mark Complete</span>
+                </button>
+                <button class="btn btn-note" id="btnNote">
+                    <span class="btn-icon">📝</span>
+                    <span class="btn-text">Add Note</span>
+                </button>
+                <button class="btn btn-close" id="btnClose">
+                    <span class="btn-icon">✕</span>
+                    <span class="btn-text">Close</span>
+                </button>
             </div>
         </div>
     </div>
+
+    <!-- Settings Modal -->
+    <div class="popup-overlay" id="settingsOverlay">
+        <div class="popup-content settings">
+            <div class="popup-header">
+                <h3 id="settingsTitle">Settings</h3>
+                <div class="popup-close" onclick="closeSettings()">×</div>
+            </div>
+            <div class="settings-content">
+                <div class="setting-group">
+                    <label for="notificationToggle" id="notificationLabel">Enable Notifications</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="notificationToggle">
+                        <span class="toggle-slider"></span>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <label for="autoRefresh" id="autoRefreshLabel">Auto Refresh (seconds)</label>
+                    <input type="number" id="autoRefresh" min="10" max="300" value="30" class="setting-input">
+                </div>
+                <div class="setting-group">
+                    <label for="timeFormat" id="timeFormatLabel">Time Format</label>
+                    <select id="timeFormat" class="setting-select">
+                        <option value="12">12 Hour</option>
+                        <option value="24">24 Hour</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Note Modal -->
+    <div class="popup-overlay" id="noteOverlay">
+        <div class="popup-content note">
+            <div class="popup-header">
+                <h3 id="noteTitle">Add Note</h3>
+                <div class="popup-close" onclick="closeNote()">×</div>
+            </div>
+            <div class="note-content">
+                <textarea id="noteText" placeholder="Enter your note here..." class="note-textarea"></textarea>
+                <div class="note-buttons">
+                    <button class="btn btn-save" onclick="saveNote()">Save Note</button>
+                    <button class="btn btn-cancel" onclick="closeNote()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+			apiKey: "AIzaSyA1JxM0JG44MxUU_soHlCyzogQi8c6hXKc",
+			authDomain: "pm-schedule-dashboard.firebaseapp.com",
+			projectId: "pm-schedule-dashboard",
+			storageBucket: "pm-schedule-dashboard.firebasestorage.app",
+			messagingSenderId: "267442166603",
+			appId: "1:267442166603:web:e5e8393680d42e59dea6ce",
+			measurementId: "G-R7M48VQRQD"
+		};
+
+        // Initialize Firebase (with error handling)
+        try {
+            firebase.initializeApp(firebaseConfig);
+            console.log('Firebase initialized successfully');
+        } catch (error) {
+            console.warn('Firebase initialization failed:', error);
+        }
+    </script>
 
     <script src="data.js"></script>
     <script src="script.js"></script>
