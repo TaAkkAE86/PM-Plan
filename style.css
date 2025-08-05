@@ -1765,3 +1765,382 @@ body.dark-mode .popup-content {
         height: 44px;
     }
 }
+.date-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+}
+
+.date-select {
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 8px 15px;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+}
+
+.date-select:focus {
+    outline: none;
+    background: rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.5);
+}
+
+.date-select option {
+    background: var(--ford-blue);
+    color: white;
+}
+
+.current-viewing-date {
+    background: linear-gradient(135deg, var(--ford-blue), var(--ford-light-blue));
+    color: white;
+    padding: 15px 25px;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: var(--shadow-light);
+}
+
+.current-viewing-date h3 {
+    margin: 0;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+/* เพิ่มในส่วนท้ายของไฟล์ style.css */
+
+.current-viewing-date.today-highlight {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    animation: todayPulse 2s ease-in-out infinite;
+}
+
+@keyframes todayPulse {
+    0%, 100% { 
+        box-shadow: var(--shadow-light), 0 0 0 0 rgba(39, 174, 96, 0.7);
+    }
+    50% { 
+        box-shadow: var(--shadow-medium), 0 0 0 10px rgba(39, 174, 96, 0);
+    }
+}
+
+.date-note {
+    font-size: 0.8em;
+    opacity: 0.8;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+.current-viewing-date h3 {
+    margin: 0;
+    font-size: 1.3em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.date-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+}
+
+.date-select {
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 8px 15px;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+}
+
+.date-select:focus {
+    outline: none;
+    background: rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.5);
+}
+
+.date-select option {
+    background: var(--ford-blue);
+    color: white;
+}
+.schedule-stats {
+    font-size: 1.1em;
+    opacity: 0.9;
+    margin-bottom: 15px;
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    display: inline-block;
+}
+/* PIN Protection Styles - เพิ่มในส่วนท้ายของ style.css */
+
+.pin-modal {
+    max-width: 400px;
+}
+
+.pin-content {
+    padding: 30px;
+}
+
+.pin-content p {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #7f8c8d;
+    line-height: 1.5;
+}
+
+.pin-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.4em;
+    text-align: center;
+    border: 2px solid var(--light-gray);
+    border-radius: 10px;
+    margin: 20px 0;
+    letter-spacing: 8px;
+    font-weight: bold;
+    transition: var(--transition);
+}
+
+.pin-input:focus {
+    outline: none;
+    border-color: var(--ford-blue);
+    box-shadow: 0 0 10px rgba(0, 51, 135, 0.3);
+}
+
+.pin-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.pin-buttons .btn {
+    flex: 1;
+}
+
+.pin-hint {
+    text-align: center;
+    margin-top: 15px;
+    opacity: 0.7;
+}
+
+.pin-hint small {
+    font-size: 0.9em;
+    color: var(--ford-blue);
+}
+
+.pin-step {
+    margin-bottom: 20px;
+}
+
+.pin-step label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.pin-setting-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.pin-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.pin-btn {
+    background: var(--ford-blue);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+}
+
+.pin-btn:hover {
+    background: var(--ford-dark-blue);
+    transform: translateY(-2px);
+}
+
+.pin-info small {
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+.schedule-stats {
+    font-size: 1.1em;
+    opacity: 0.9;
+    margin-bottom: 15px;
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    display: inline-block;
+}
+
+.current-viewing-date.today-highlight {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    animation: todayPulse 2s ease-in-out infinite;
+}
+
+@keyframes todayPulse {
+    0%, 100% { 
+        box-shadow: var(--shadow-light), 0 0 0 0 rgba(39, 174, 96, 0.7);
+    }
+    50% { 
+        box-shadow: var(--shadow-medium), 0 0 0 10px rgba(39, 174, 96, 0);
+    }
+}
+
+.date-note {
+    font-size: 0.8em;
+    opacity: 0.8;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+.current-viewing-date h3 {
+    margin: 0;
+    font-size: 1.3em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.date-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+}
+
+.date-select {
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 8px 15px;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+}
+
+.date-select:focus {
+    outline: none;
+    background: rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.5);
+}
+
+.date-select option {
+    background: var(--ford-blue);
+    color: white;
+}
+
+/* Animation สำหรับ shake effect */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Dark mode support */
+body.dark-mode .pin-input {
+    background: #2d2d2d;
+    color: white;
+    border-color: #444;
+}
+
+body.dark-mode .pin-input:focus {
+    border-color: var(--ford-light-blue);
+}
+/* เพิ่มในส่วนท้ายของ style.css */
+
+.pin-security-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid var(--ford-blue);
+}
+
+.pin-help-btn {
+    background: var(--ford-blue);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: var(--transition);
+}
+
+.pin-help-btn:hover {
+    background: var(--ford-dark-blue);
+    transform: scale(1.1);
+}
+
+.pin-security-note {
+    margin-top: 15px;
+    padding: 10px;
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.pin-security-note small {
+    color: #856404;
+    font-weight: 500;
+}
+
+/* Dark mode support */
+body.dark-mode .pin-security-info {
+    background: #2d2d2d;
+    border-left-color: var(--ford-light-blue);
+}
+
+body.dark-mode .pin-security-note {
+    background: #3d3d00;
+    border-color: #ffff00;
+}
+
+body.dark-mode .pin-security-note small {
+    color: #ffff88;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .pin-security-info {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+}
