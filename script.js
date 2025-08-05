@@ -51,6 +51,36 @@ const translations = {
         connectionLost: "ขาดการเชื่อมต่อ",
         markComplete: "นำส่งแล้ว",
         loading: "กำลังโหลด...",
+        selectDate: "เลือกวันที่:",
+        firstAvailableDay: "วันแรกที่มีงาน",
+        currentlyViewing: "กำลังดู:",
+        todayData: "ข้อมูลวันนี้",
+        closestData: "ข้อมูลวันที่ใกล้เคียงที่สุด",
+        showingClosest: "แสดงข้อมูล: วันที่ใกล้เคียงที่สุด",
+        closestAvailable: "(วันที่ใกล้เคียงที่สุดที่มีข้อมูล)",
+        // PIN Protection translations
+        enterPIN: "ใส่รหัส PIN",
+        resetWarning: "การดำเนินการนี้จะรีเซ็ทงานที่เสร็จสิ้นทั้งหมด กรุณาใส่ PIN เพื่อยืนยัน:",
+        incorrectPIN: "รหัส PIN ไม่ถูกต้อง",
+        changePIN: "เปลี่ยนรหัส PIN",
+        pinAccepted: "รหัส PIN ถูกต้อง",
+        accessGranted: "อนุญาตให้เข้าถึง",
+        tryAgain: "กรุณาลองใหม่อีกครั้ง",
+        enterCurrentPIN: "ใส่ PIN ปัจจุบัน:",
+        enterNewPIN: "ใส่ PIN ใหม่:",
+        confirmNewPIN: "ยืนยัน PIN ใหม่:",
+        currentPINIncorrect: "PIN ปัจจุบันไม่ถูกต้อง",
+        invalidPIN: "PIN ไม่ถูกต้อง",
+        pinMustBe4Digits: "PIN ต้องเป็นตัวเลข 4 หลัก",
+        pinMismatch: "PIN ไม่ตรงกัน",
+        pinsDoNotMatch: "PIN ใหม่และการยืนยันไม่ตรงกัน",
+        pinChanged: "เปลี่ยน PIN แล้ว",
+        pinUpdatedSuccessfully: "อัพเดตรหัส PIN เรียบร้อยแล้ว",
+        resetPINSecurity: "ความปลอดภัยการรีเซ็ท",
+        pinProtection: "PIN ป้องกันการรีเซ็ทข้อมูล",
+        defaultPIN: "PIN เริ่มต้น",
+        resetComplete: "รีเซ็ทเสร็จสิ้น",
+        resetSuccessfully: "รีเซ็ทเรียบร้อยแล้ว",
         // Days and months
         sun: "อา", mon: "จ", tue: "อ", wed: "พ", thu: "พฤ", fri: "ศ", sat: "ส",
         sunday: "อาทิตย์", monday: "จันทร์", tuesday: "อังคาร", wednesday: "พุธ",
@@ -80,6 +110,33 @@ const translations = {
         dataExported: "Data Exported", dataExportedDesc: "Data has been exported successfully",
         connectionRestored: "Connection Restored", connectionLost: "Connection Lost",
         markComplete: "Mark Complete", loading: "Loading...",
+        selectDate: "Select Date:", firstAvailableDay: "First Available Day",
+        currentlyViewing: "Currently Viewing:", todayData: "Today's Data",
+        closestData: "Closest Available Data", showingClosest: "Showing: Closest available data",
+        closestAvailable: "(Closest available date with data)",
+        // PIN Protection translations
+        enterPIN: "Enter PIN",
+        resetWarning: "This will reset all completed tasks. Enter PIN to confirm:",
+        incorrectPIN: "Incorrect PIN",
+        changePIN: "Change PIN",
+        pinAccepted: "PIN Accepted",
+        accessGranted: "Access granted",
+        tryAgain: "Please try again",
+        enterCurrentPIN: "Enter current PIN:",
+        enterNewPIN: "Enter new PIN:",
+        confirmNewPIN: "Confirm new PIN:",
+        currentPINIncorrect: "Current PIN is incorrect",
+        invalidPIN: "Invalid PIN",
+        pinMustBe4Digits: "PIN must be 4 digits",
+        pinMismatch: "PIN Mismatch",
+        pinsDoNotMatch: "New PIN and confirmation do not match",
+        pinChanged: "PIN Changed",
+        pinUpdatedSuccessfully: "Reset PIN has been updated successfully",
+        resetPINSecurity: "Reset PIN Security",
+        pinProtection: "PIN protects reset function",
+        defaultPIN: "Default PIN",
+        resetComplete: "Reset Complete",
+        resetSuccessfully: "reset successfully",
         // Days and months
         sun: "Sun", mon: "Mon", tue: "Tue", wed: "Wed", thu: "Thu", fri: "Fri", sat: "Sat",
         sunday: "Sunday", monday: "Monday", tuesday: "Tuesday", wednesday: "Wednesday",
@@ -361,7 +418,7 @@ let completedVehicles = new Set();
 let vehicleNotes = new Map();
 let currentSelectedVehicle = null;
 let currentView = 'today';
-let currentLanguage = localStorage.getItem('language') || 'th'; // Fixed: Load from localStorage
+let currentLanguage = localStorage.getItem('language') || 'th';
 let currentMonth = new Date(2025, 7);
 let currentFilter = 'all';
 let searchQuery = '';
@@ -370,11 +427,324 @@ let notificationManager = null;
 let unsubscribe = null;
 let autoRefreshInterval = null;
 let isDarkMode = localStorage.getItem('darkMode') === 'true';
+let selectedDate = null; // สำหรับเลือกวันที่
+let RESET_PIN = localStorage.getItem('resetPIN') || '1234'; // PIN เริ่มต้น
 let settings = {
     autoRefresh: parseInt(localStorage.getItem('autoRefresh')) || 30,
     timeFormat: localStorage.getItem('timeFormat') || '12',
     notifications: localStorage.getItem('notificationsEnabled') === 'true'
 };
+
+// ฟังก์ชันหาวันที่ปัจจุบันหรือวันที่ใกล้เคียงที่สุด
+function findCurrentOrClosestDate() {
+    if (typeof scheduleData === 'undefined' || scheduleData.length === 0) {
+        return null;
+    }
+
+    const today = new Date();
+    const todayStr = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+    
+    // หาวันที่ปัจจุบันก่อน
+    let exactMatch = scheduleData.find(day => {
+        const timeSlots = Object.keys(day).filter(key => 
+            key !== 'Date' && key !== 'Day'
+        );
+        return day.Date === todayStr && timeSlots.length > 0;
+    });
+
+    if (exactMatch) {
+        return exactMatch;
+    }
+
+    // ถ้าไม่มีวันที่ปัจจุบัน ให้หาวันที่ใกล้เคียงที่สุด
+    let closestDate = null;
+    let minDifference = Infinity;
+    
+    const todayTime = today.getTime();
+
+    scheduleData.forEach(day => {
+        const timeSlots = Object.keys(day).filter(key => 
+            key !== 'Date' && key !== 'Day'
+        );
+        
+        if (timeSlots.length > 0) {
+            try {
+                const [month, dayNum, year] = day.Date.split('/').map(Number);
+                const dayDate = new Date(year, month - 1, dayNum);
+                const difference = Math.abs(dayDate.getTime() - todayTime);
+                
+                if (difference < minDifference) {
+                    minDifference = difference;
+                    closestDate = day;
+                }
+            } catch (error) {
+                console.warn('Invalid date format:', day.Date);
+            }
+        }
+    });
+
+    return closestDate;
+}
+
+// แก้ไขฟังก์ชัน requestPINForReset() ใหม่ - ซ่อน PIN เริ่มต้น
+async function requestPINForReset() {
+    return new Promise((resolve) => {
+        const t = translations[currentLanguage];
+        
+        // สร้าง modal ขอ PIN
+        const pinModal = document.createElement('div');
+        pinModal.className = 'popup-overlay pin-overlay';
+        pinModal.innerHTML = `
+            <div class="popup-content pin-modal">
+                <div class="popup-header">
+                    <h3>🔒 ${t.enterPIN}</h3>
+                    <div class="popup-close pin-close">×</div>
+                </div>
+                <div class="pin-content">
+                    <p>${t.resetWarning}</p>
+                    <input type="password" id="pinInput" class="pin-input" placeholder="••••" maxlength="4" autocomplete="off">
+                    <div class="pin-buttons">
+                        <button class="btn btn-confirm" id="confirmPIN">
+                            <span class="btn-icon">✓</span>
+                            <span class="btn-text">${t.done}</span>
+                        </button>
+                        <button class="btn btn-cancel" id="cancelPIN">
+                            <span class="btn-icon">✕</span>
+                            <span class="btn-text">${t.cancel}</span>
+                        </button>
+                    </div>
+                    <div class="pin-security-info">
+                        <small>🔐 ${t.pinProtection || 'PIN protects reset function'}</small>
+                        <button class="pin-help-btn" id="pinHelpBtn" type="button">❓</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(pinModal);
+        pinModal.style.display = 'block';
+        
+        const pinInput = pinModal.querySelector('#pinInput');
+        const confirmBtn = pinModal.querySelector('#confirmPIN');
+        const cancelBtn = pinModal.querySelector('#cancelPIN');
+        const closeBtn = pinModal.querySelector('.pin-close');
+        const helpBtn = pinModal.querySelector('#pinHelpBtn');
+        
+        // Focus ไปที่ input
+        setTimeout(() => pinInput.focus(), 100);
+        
+        // ฟังก์ชันปิด modal
+        const closeModal = () => {
+            if (pinModal.parentElement) {
+                document.body.removeChild(pinModal);
+            }
+        };
+        
+        // ฟังก์ชันแสดงความช่วยเหลือ PIN (แทนการแสดง PIN ตรงๆ)
+        const showPinHelp = () => {
+            const helpText = currentLanguage === 'th' ? 
+                'ติดต่อผู้ดูแลระบบหากลืม PIN หรือตรวจสอบในเอกสารการใช้งาน' :
+                'Contact system administrator if you forgot PIN or check documentation';
+            
+            showToast('PIN Help', helpText, 'info', 5000);
+        };
+        
+        // ฟังก์ชันตรวจสอบ PIN
+        const checkPIN = () => {
+            const enteredPIN = pinInput.value.trim();
+            if (enteredPIN === RESET_PIN) {
+                closeModal();
+                showToast(t.pinAccepted || 'PIN Accepted', t.accessGranted || 'Access granted', 'success', 2000);
+                resolve(true);
+            } else {
+                pinInput.style.borderColor = '#e74c3c';
+                pinInput.style.animation = 'shake 0.5s';
+                pinInput.value = '';
+                showToast(t.incorrectPIN, t.tryAgain || 'Please try again', 'error');
+                setTimeout(() => {
+                    pinInput.style.borderColor = '';
+                    pinInput.style.animation = '';
+                    pinInput.focus();
+                }, 500);
+            }
+        };
+        
+        // Event listeners
+        confirmBtn.addEventListener('click', checkPIN);
+        
+        cancelBtn.addEventListener('click', () => {
+            closeModal();
+            resolve(false);
+        });
+        
+        closeBtn.addEventListener('click', () => {
+            closeModal();
+            resolve(false);
+        });
+        
+        // Help button
+        helpBtn.addEventListener('click', showPinHelp);
+        
+        // Enter key support
+        pinInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                checkPIN();
+            }
+        });
+        
+        // Auto-submit when 4 digits entered
+        pinInput.addEventListener('input', (e) => {
+            // ให้ป้อนได้เฉพาะตัวเลข
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            
+            if (e.target.value.length === 4) {
+                setTimeout(checkPIN, 200); // Small delay for better UX
+            }
+        });
+        
+        // Cancel on overlay click
+        pinModal.addEventListener('click', (e) => {
+            if (e.target === pinModal) {
+                closeModal();
+                resolve(false);
+            }
+        });
+        
+        // Prevent modal from closing when clicking inside
+        pinModal.querySelector('.popup-content').addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    });
+}
+
+// แก้ไขฟังก์ชัน changePIN() เพื่อไม่แสดง PIN เริ่มต้น
+async function changePIN() {
+    const t = translations[currentLanguage];
+    
+    return new Promise((resolve) => {
+        const pinModal = document.createElement('div');
+        pinModal.className = 'popup-overlay';
+        pinModal.innerHTML = `
+            <div class="popup-content pin-modal">
+                <div class="popup-header">
+                    <h3>🔑 ${t.changePIN}</h3>
+                    <div class="popup-close" onclick="this.closest('.popup-overlay').remove();">×</div>
+                </div>
+                <div class="pin-content">
+                    <div class="pin-step">
+                        <label>${t.enterCurrentPIN}</label>
+                        <input type="password" id="currentPinInput" class="pin-input" placeholder="••••" maxlength="4" autocomplete="off">
+                    </div>
+                    <div class="pin-step">
+                        <label>${t.enterNewPIN}</label>
+                        <input type="password" id="newPinInput" class="pin-input" placeholder="••••" maxlength="4" autocomplete="off">
+                    </div>
+                    <div class="pin-step">
+                        <label>${t.confirmNewPIN}</label>
+                        <input type="password" id="confirmPinInput" class="pin-input" placeholder="••••" maxlength="4" autocomplete="off">
+                    </div>
+                    <div class="pin-buttons">
+                        <button class="btn btn-confirm" id="savePIN">
+                            <span class="btn-icon">💾</span>
+                            <span class="btn-text">${t.saveNote || 'Save'}</span>
+                        </button>
+                        <button class="btn btn-cancel" id="cancelPINChange">
+                            <span class="btn-icon">✕</span>
+                            <span class="btn-text">${t.cancel}</span>
+                        </button>
+                    </div>
+                    <div class="pin-security-note">
+                        <small>⚠️ ${currentLanguage === 'th' ? 'กรุณาจดจำ PIN ใหม่ เพราะไม่สามารถกู้คืนได้' : 'Please remember your new PIN as it cannot be recovered'}</small>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(pinModal);
+        pinModal.style.display = 'block';
+        
+        const currentPinInput = pinModal.querySelector('#currentPinInput');
+        const newPinInput = pinModal.querySelector('#newPinInput');
+        const confirmPinInput = pinModal.querySelector('#confirmPinInput');
+        const savePIN = pinModal.querySelector('#savePIN');
+        const cancelPINChange = pinModal.querySelector('#cancelPINChange');
+        
+        currentPinInput.focus();
+        
+        // จำกัดให้ป้อนได้เฉพาะตัวเลข
+        [currentPinInput, newPinInput, confirmPinInput].forEach(input => {
+            input.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            });
+        });
+        
+        savePIN.onclick = () => {
+            const currentPIN = currentPinInput.value;
+            const newPIN = newPinInput.value;
+            const confirmPIN = confirmPinInput.value;
+            
+            // ตรวจสอบ PIN ปัจจุบัน
+            if (currentPIN !== RESET_PIN) {
+                showToast(t.incorrectPIN, t.currentPINIncorrect || 'Current PIN is incorrect', 'error');
+                currentPinInput.focus();
+                return;
+            }
+            
+            // ตรวจสอบ PIN ใหม่
+            if (!/^\d{4}$/.test(newPIN)) {
+                showToast(t.invalidPIN || 'Invalid PIN', t.pinMustBe4Digits || 'PIN must be 4 digits', 'error');
+                newPinInput.focus();
+                return;
+            }
+            
+            // ตรวจสอบการยืนยัน PIN
+            if (newPIN !== confirmPIN) {
+                showToast(t.pinMismatch || 'PIN Mismatch', t.pinsDoNotMatch || 'PINs do not match', 'error');
+                confirmPinInput.focus();
+                return;
+            }
+            
+            // บันทึก PIN ใหม่
+            RESET_PIN = newPIN;
+            localStorage.setItem('resetPIN', newPIN);
+            
+            // Log การเปลี่ยน PIN (ไม่บันทึก PIN จริง)
+            localStorage.setItem('lastPINChange', new Date().toISOString());
+            localStorage.setItem('pinChangeCount', (parseInt(localStorage.getItem('pinChangeCount') || '0') + 1).toString());
+            
+            document.body.removeChild(pinModal);
+            showToast(t.pinChanged || 'PIN Changed', t.pinUpdatedSuccessfully || 'Reset PIN has been updated successfully', 'success');
+            resolve(true);
+        };
+        
+        cancelPINChange.onclick = () => {
+            document.body.removeChild(pinModal);
+            resolve(false);
+        };
+    });
+}
+
+// เพิ่มฟังก์ชันใหม่สำหรับแสดงข้อมูล PIN security ใน Settings
+function updatePINSecurityInfo() {
+    const pinInfo = document.querySelector('.pin-info');
+    if (pinInfo) {
+        const lastChange = localStorage.getItem('lastPINChange');
+        const changeCount = localStorage.getItem('pinChangeCount') || '0';
+        
+        let infoText = currentLanguage === 'th' ? 
+            `🔐 PIN ป้องกันการรีเซ็ทข้อมูล | เปลี่ยนแปลงแล้ว: ${changeCount} ครั้ง` :
+            `🔐 PIN protects reset function | Changed: ${changeCount} times`;
+        
+        if (lastChange) {
+            const changeDate = new Date(lastChange).toLocaleDateString();
+            infoText += currentLanguage === 'th' ? ` | ครั้งล่าสุด: ${changeDate}` : ` | Last: ${changeDate}`;
+        }
+        
+        pinInfo.innerHTML = `<small>${infoText}</small>`;
+    }
+}
+
 
 // Enhanced Loading System
 function showLoadingOverlay(show) {
@@ -413,12 +783,17 @@ function updateConnectionStatus(isOnline) {
 function updateStatistics() {
     const t = translations[currentLanguage];
     
-    // Get today's schedule for statistics
-    const todaySchedule = getTodayScheduleData();
-    const totalTasks = todaySchedule.length;
-    const completed = Math.min(completedVehicles.size, totalTasks);
-    const pending = totalTasks - completed;
-    const efficiency = totalTasks > 0 ? Math.round((completed / totalTasks) * 100) : 0;
+    // Get current schedule for statistics
+    const currentScheduleVehicles = getCurrentScheduleData();
+    const totalTasks = currentScheduleVehicles.length;
+    
+    // นับเฉพาะรถที่เสร็จแล้วและอยู่ในตารางวันนี้
+    const completedInCurrentSchedule = currentScheduleVehicles.filter(vehicleNumber => 
+        completedVehicles.has(vehicleNumber)
+    ).length;
+    
+    const pending = totalTasks - completedInCurrentSchedule;
+    const efficiency = totalTasks > 0 ? Math.round((completedInCurrentSchedule / totalTasks) * 100) : 0;
     
     // Update statistics display with safe element checking
     const totalTasksEl = document.getElementById('totalTasks');
@@ -427,7 +802,7 @@ function updateStatistics() {
     const efficiencyEl = document.getElementById('efficiency');
     
     if (totalTasksEl) animateNumber(totalTasksEl, totalTasks);
-    if (completedTasksEl) animateNumber(completedTasksEl, completed);
+    if (completedTasksEl) animateNumber(completedTasksEl, completedInCurrentSchedule);
     if (pendingTasksEl) animateNumber(pendingTasksEl, pending);
     if (efficiencyEl) animateNumber(efficiencyEl, efficiency, '%');
     
@@ -445,8 +820,11 @@ function updateStatistics() {
     // Update progress bar
     updateProgressBar(efficiency);
     
-    // Check if all tasks completed
-    if (totalTasks > 0 && completed === totalTasks && notificationManager) {
+    // Update schedule stats
+    updateScheduleStats();
+    
+    // Check if all tasks completed สำหรับวันนี้เท่านั้น
+    if (totalTasks > 0 && completedInCurrentSchedule === totalTasks && notificationManager) {
         notificationManager.show(t.allTasksCompleted, {
             body: t.allTasksCompletedDesc,
             tag: 'all-completed'
@@ -455,18 +833,80 @@ function updateStatistics() {
     }
 }
 
-function getTodayScheduleData() {
-    // Check if scheduleData is available
+// ฟังก์ชันใหม่สำหรับหาข้อมูลตารางงานปัจจุบัน
+function getCurrentScheduleData() {
     if (typeof scheduleData === 'undefined') {
         console.warn('scheduleData not available');
         return [];
     }
     
-    const todaySchedule = scheduleData.find(day => Object.keys(day).length > 2) || {};
-    const timeSlots = Object.keys(todaySchedule).filter(key => 
+    let currentSchedule;
+    
+    if (selectedDate && selectedDate !== 'auto') {
+        // ถ้าเลือกวันที่เฉพาะ
+        currentSchedule = scheduleData.find(day => day.Date === selectedDate);
+    } else {
+        // หาวันที่ปัจจุบันหรือวันที่ใกล้เคียงที่สุด
+        currentSchedule = findCurrentOrClosestDate();
+    }
+    
+    if (!currentSchedule) return [];
+    
+    const timeSlots = Object.keys(currentSchedule).filter(key => 
         key !== 'Date' && key !== 'Day'
     );
-    return timeSlots.map(slot => todaySchedule[slot]);
+    return timeSlots.map(slot => currentSchedule[slot]);
+}
+
+// ฟังก์ชันสำหรับแสดงข้อมูลสถิติของวันที่เลือก
+function getDetailedStatistics() {
+    const currentData = getCurrentScheduleData();
+    const totalTasks = currentData.length;
+    
+    // นับเฉพาะรถที่เสร็จแล้วและอยู่ในตารางวันนี้
+    const completedInCurrentSchedule = currentData.filter(vehicleNumber => 
+        completedVehicles.has(vehicleNumber)
+    );
+    
+    const pendingInCurrentSchedule = currentData.filter(vehicleNumber => 
+        !completedVehicles.has(vehicleNumber)
+    );
+    
+    return {
+        total: totalTasks,
+        completed: completedInCurrentSchedule.length,
+        pending: pendingInCurrentSchedule.length,
+        completedList: completedInCurrentSchedule,
+        pendingList: pendingInCurrentSchedule,
+        efficiency: totalTasks > 0 ? Math.round((completedInCurrentSchedule.length / totalTasks) * 100) : 0
+    };
+}
+
+// ฟังก์ชันอัพเดตสถิติของตารางวันที่เลือก
+function updateScheduleStats() {
+    const statsElement = document.getElementById('scheduleStats');
+    if (!statsElement) return;
+    
+    const stats = getDetailedStatistics();
+    const currentOrClosest = findCurrentOrClosestDate();
+    
+    if (currentOrClosest && stats.total > 0) {
+        const t = translations[currentLanguage];
+        const today = new Date();
+        const todayStr = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+        const isToday = currentOrClosest.Date === todayStr;
+        
+        const dateLabel = isToday ? 
+            (currentLanguage === 'th' ? 'วันนี้' : 'Today') : 
+            currentOrClosest.Date;
+            
+        statsElement.innerHTML = `
+            📊 ${dateLabel}: ${stats.completed}/${stats.total} ${t.completed} (${stats.efficiency}%)
+        `;
+        statsElement.style.display = 'inline-block';
+    } else {
+        statsElement.style.display = 'none';
+    }
 }
 
 function animateNumber(element, target, suffix = '') {
@@ -524,6 +964,63 @@ function loadCompletedVehicles() {
         console.error('Failed to load from localStorage:', error);
         completedVehicles = new Set();
     }
+}
+
+// ฟังก์ชันสำหรับจัดการ Date Selector
+function populateDateSelector() {
+    const dateSelect = document.getElementById('dateSelect');
+    if (!dateSelect || typeof scheduleData === 'undefined') return;
+    
+    // เคลียร์ options เดิม
+    dateSelect.innerHTML = '';
+    
+    // หาวันที่ปัจจุบันหรือวันที่ใกล้เคียงที่สุด
+    const currentOrClosest = findCurrentOrClosestDate();
+    
+    // เพิ่ม option แรกสำหรับแสดงวันที่ปัจจุบัน/ใกล้เคียงที่สุด
+    const autoOption = document.createElement('option');
+    autoOption.value = 'auto';
+    
+    if (currentOrClosest) {
+        const today = new Date();
+        const todayStr = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+        const isToday = currentOrClosest.Date === todayStr;
+        
+        if (isToday) {
+            autoOption.textContent = currentLanguage === 'th' ? 
+                `วันนี้ (${currentOrClosest.Date})` : 
+                `Today (${currentOrClosest.Date})`;
+        } else {
+            autoOption.textContent = currentLanguage === 'th' ? 
+                `วันที่ใกล้เคียงที่สุด (${currentOrClosest.Date})` : 
+                `Closest Date (${currentOrClosest.Date})`;
+        }
+    } else {
+        autoOption.textContent = translations[currentLanguage].firstAvailableDay;
+    }
+    
+    dateSelect.appendChild(autoOption);
+    
+    // เพิ่ม options สำหรับแต่ละวันที่มีข้อมูล
+    scheduleData.forEach(day => {
+        const timeSlots = Object.keys(day).filter(key => 
+            key !== 'Date' && key !== 'Day'
+        );
+        
+        if (timeSlots.length > 0) {
+            const option = document.createElement('option');
+            option.value = day.Date;
+            option.textContent = `${day.Date} (${day.Day})`;
+            dateSelect.appendChild(option);
+        }
+    });
+    
+    // เพิ่ม event listener
+    dateSelect.addEventListener('change', function() {
+        selectedDate = this.value;
+        loadSchedule();
+        updateStatistics();
+    });
 }
 
 // Initialize the enhanced app
@@ -598,6 +1095,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Initialize UI
         updateLanguage();
         updateCurrentDate();
+        populateDateSelector(); // เพิ่มการเรียกฟังก์ชันนี้
         updateStatistics();
         loadSchedule();
         
@@ -640,6 +1138,7 @@ function setupEventListeners() {
             currentLanguage = currentLanguage === 'th' ? 'en' : 'th';
             localStorage.setItem('language', currentLanguage);
             updateLanguage();
+            populateDateSelector(); // อัพเดต date selector เมื่อเปลี่ยนภาษา
             updateConnectionStatus(firebaseManager && firebaseManager.isAvailable);
             showToast('Language Changed', `Switched to ${currentLanguage.toUpperCase()}`, 'info', 2000);
         });
@@ -796,10 +1295,20 @@ function showSettings() {
         const notificationToggle = document.getElementById('notificationToggle');
         const autoRefresh = document.getElementById('autoRefresh');
         const timeFormat = document.getElementById('timeFormat');
+        const changePINBtn = document.getElementById('changePINBtn');
         
         if (notificationToggle) notificationToggle.checked = settings.notifications;
         if (autoRefresh) autoRefresh.value = settings.autoRefresh;
         if (timeFormat) timeFormat.value = settings.timeFormat;
+        
+        // Update PIN security info
+        updatePINSecurityInfo();
+        
+        // Setup PIN change button
+        if (changePINBtn && !changePINBtn.hasEventListener) {
+            changePINBtn.hasEventListener = true;
+            changePINBtn.onclick = changePIN;
+        }
         
         if (notificationToggle) {
             notificationToggle.onchange = (e) => {
@@ -831,6 +1340,7 @@ function showSettings() {
         }
     }
 }
+
 
 function closeSettings() {
     const overlay = document.getElementById('settingsOverlay');
@@ -949,19 +1459,33 @@ async function exportData() {
         showLoadingOverlay(true);
         
         const t = translations[currentLanguage];
-        const todayData = getTodayScheduleData();
+        const currentData = getCurrentScheduleData();
+        const totalTasks = currentData.length;
+        
+        // นับเฉพาะรถที่เสร็จแล้วและอยู่ในตารางวันนี้
+        const completedInCurrentSchedule = currentData.filter(vehicleNumber => 
+            completedVehicles.has(vehicleNumber)
+        ).length;
+        
         const exportDataObj = {
             timestamp: new Date().toISOString(),
             currentView: currentView,
+            selectedDate: selectedDate,
+            currentScheduleInfo: {
+                date: selectedDate || 'auto',
+                totalVehicles: totalTasks,
+                completedVehicles: completedInCurrentSchedule,
+                vehicleList: currentData
+            },
             statistics: {
-                total: todayData.length,
-                completed: Math.min(completedVehicles.size, todayData.length),
-                pending: Math.max(0, todayData.length - completedVehicles.size),
-                efficiency: todayData.length > 0 ? 
-                    Math.round((Math.min(completedVehicles.size, todayData.length) / todayData.length) * 100) : 0
+                total: totalTasks,
+                completed: completedInCurrentSchedule,
+                pending: totalTasks - completedInCurrentSchedule,
+                efficiency: totalTasks > 0 ? 
+                    Math.round((completedInCurrentSchedule / totalTasks) * 100) : 0
             },
             scheduleData: typeof scheduleData !== 'undefined' ? scheduleData : [],
-            completedVehicles: [...completedVehicles],
+            allCompletedVehicles: [...completedVehicles],
             pmDetails: typeof pmDetails !== 'undefined' ? pmDetails : {}
         };
         
@@ -1013,7 +1537,11 @@ function updateLanguage() {
         'filterAll': t.all,
         'filterCompleted': t.completed,
         'filterPending': t.pending,
-        'filterTeam': t.byTeam
+        'filterTeam': t.byTeam,
+        'dateSelectLabel': t.selectDate,
+        'resetPINLabel': t.resetPINSecurity,
+        'changePINText': t.changePIN,
+        'pinProtectionText': t.pinProtection
     };
     
     Object.entries(elements).forEach(([id, text]) => {
@@ -1063,6 +1591,21 @@ function updateCurrentDate() {
         } catch (error) {
             dateStr = now.toDateString();
         }
+        
+        // เพิ่มข้อมูลเกี่ยวกับสถานะการแสดงข้อมูล
+        const currentOrClosest = findCurrentOrClosestDate();
+        if (currentOrClosest) {
+            const todayStr = `${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}/${now.getFullYear()}`;
+            const isToday = currentOrClosest.Date === todayStr;
+            
+            if (!isToday) {
+                const statusText = currentLanguage === 'th' ? 
+                    ` | แสดงข้อมูล: ${currentOrClosest.Date}` : 
+                    ` | Showing: ${currentOrClosest.Date}`;
+                dateStr += statusText;
+            }
+        }
+        
         dateElement.textContent = dateStr;
     }
 }
@@ -1087,6 +1630,7 @@ function loadSchedule() {
     }
 }
 
+// แก้ไขฟังก์ชัน loadTodaySchedule ใหม่
 function loadTodaySchedule(container) {
     if (typeof scheduleData === 'undefined') {
         container.innerHTML = `
@@ -1098,9 +1642,17 @@ function loadTodaySchedule(container) {
         return;
     }
 
-    const todaySchedule = scheduleData.find(day => Object.keys(day).length > 2);
+    let todaySchedule;
     
-    if (!todaySchedule || Object.keys(todaySchedule).length <= 2) {
+    if (selectedDate && selectedDate !== 'auto') {
+        // ถ้าเลือกวันที่เฉพาะ
+        todaySchedule = scheduleData.find(day => day.Date === selectedDate);
+    } else {
+        // หาวันที่ปัจจุบันหรือวันที่ใกล้เคียงที่สุด
+        todaySchedule = findCurrentOrClosestDate();
+    }
+    
+    if (!todaySchedule) {
         const t = translations[currentLanguage];
         container.innerHTML = `
             <div class="no-schedule">
@@ -1111,6 +1663,30 @@ function loadTodaySchedule(container) {
         return;
     }
 
+    // ตรวจสอบว่าเป็นวันที่ปัจจุบันหรือไม่
+    const today = new Date();
+    const todayStr = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+    const isToday = todaySchedule.Date === todayStr;
+
+    // แสดงข้อมูลวันที่กำลังดู
+    const dateDisplay = document.createElement('div');
+    dateDisplay.className = 'current-viewing-date';
+    
+    const t = translations[currentLanguage];
+    let dateDisplayHTML = '';
+    
+    if (isToday) {
+        dateDisplay.classList.add('today-highlight');
+        dateDisplayHTML = `<h3>📅 ${t.currentlyViewing} ${todaySchedule.Date} - ${todaySchedule.Day} (${currentLanguage === 'th' ? 'วันนี้' : 'Today'})</h3>`;
+    } else {
+        dateDisplayHTML = `
+            <h3>📅 ${t.currentlyViewing} ${todaySchedule.Date} - ${todaySchedule.Day}</h3>
+            <div class="date-note">${t.closestAvailable}</div>
+        `;
+    }
+    
+    dateDisplay.innerHTML = dateDisplayHTML;
+    
     const scheduleGrid = document.createElement('div');
     scheduleGrid.className = 'schedule-grid';
 
@@ -1126,12 +1702,15 @@ function loadTodaySchedule(container) {
     const filteredItems = filterScheduleData(scheduleItems);
 
     if (filteredItems.length === 0 && (searchQuery || currentFilter !== 'all')) {
-        container.innerHTML = `
-            <div class="no-schedule">
-                <h2>🔍 No Results Found</h2>
-                <p>Try adjusting your search or filter criteria</p>
-            </div>
+        container.innerHTML = '';
+        container.appendChild(dateDisplay);
+        const noResults = document.createElement('div');
+        noResults.className = 'no-schedule';
+        noResults.innerHTML = `
+            <h2>🔍 No Results Found</h2>
+            <p>Try adjusting your search or filter criteria</p>
         `;
+        container.appendChild(noResults);
         return;
     }
 
@@ -1141,6 +1720,7 @@ function loadTodaySchedule(container) {
     });
 
     container.innerHTML = '';
+    container.appendChild(dateDisplay);
     container.appendChild(scheduleGrid);
 }
 
@@ -1687,12 +2267,28 @@ async function resetVehicleStatus(vehicleNumber) {
     }
 }
 
+// แก้ไขฟังก์ชัน resetAllStatus เดิม
 async function resetAllStatus() {
     const t = translations[currentLanguage];
-    if (!confirm(t.confirmReset)) return;
-
+    
     try {
+        // ขอ PIN ก่อน
+        const pinConfirmed = await requestPINForReset();
+        if (!pinConfirmed) {
+            console.log('Reset cancelled by user');
+            return;
+        }
+        
+        // ยืนยันอีกครั้ง
+        if (!confirm(t.confirmReset)) {
+            console.log('Reset cancelled at confirmation');
+            return;
+        }
+
         showLoadingOverlay(true);
+        
+        // เก็บสถิติก่อนรีเซ็ท
+        const statsBeforeReset = getDetailedStatistics();
         
         completedVehicles.clear();
         
@@ -1702,17 +2298,137 @@ async function resetAllStatus() {
             saveCompletedVehicles();
         }
         
+        // บันทึก log การรีเซ็ท
+        const resetLog = {
+            timestamp: new Date().toISOString(),
+            type: 'complete_reset',
+            beforeReset: statsBeforeReset,
+            user: 'authorized_user'
+        };
+        
+        try {
+            const logs = JSON.parse(localStorage.getItem('resetLogs') || '[]');
+            logs.push(resetLog);
+            if (logs.length > 50) logs.splice(0, logs.length - 50); // เก็บแค่ 50 log ล่าสุด
+            localStorage.setItem('resetLogs', JSON.stringify(logs));
+            localStorage.setItem('lastCompleteReset', new Date().toISOString());
+        } catch (e) {
+            console.warn('Failed to save reset log:', e);
+        }
+        
+        console.log('Complete reset performed:', resetLog);
+        
         updateStatistics();
         loadSchedule();
-        showToast('Reset Complete', 'All vehicle status reset', 'success');
+        showToast(
+            t.resetComplete || 'Reset Complete', 
+            `${statsBeforeReset.completed} ${t.completedTasks} ${t.resetSuccessfully || 'reset successfully'}`, 
+            'success',
+            5000
+        );
         
     } catch (error) {
         console.error('Error resetting all status:', error);
         showToast('Error', 'Failed to reset all status', 'error');
-        saveCompletedVehicles();
+        
+        // Fallback to localStorage
+        try {
+            saveCompletedVehicles();
+        } catch (e) {
+            console.error('Fallback save failed:', e);
+        }
     } finally {
         showLoadingOverlay(false);
     }
+}
+
+// แก้ไขการเชื่อมต่อ event listener สำหรับปุ่ม reset
+function setupEventListeners() {
+    // View buttons
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentView = this.getAttribute('data-view');
+            loadSchedule();
+            
+            // Analytics
+            if (firebaseManager && firebaseManager.isAvailable) {
+                firebaseManager.saveAnalytics('navigation', `view_${currentView}`).catch(console.warn);
+            }
+        });
+    });
+
+    // Reset button - เชื่อมต่อกับฟังก์ชันใหม่
+    const resetBtn = document.getElementById('resetBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            console.log('Reset button clicked');
+            await resetAllStatus();
+        });
+    }
+
+    // Language toggle with enhanced UX
+    const langSwitch = document.getElementById('langSwitch');
+    if (langSwitch) {
+        langSwitch.addEventListener('click', function() {
+            this.classList.toggle('en');
+            currentLanguage = currentLanguage === 'th' ? 'en' : 'th';
+            localStorage.setItem('language', currentLanguage);
+            updateLanguage();
+            populateDateSelector();
+            updateConnectionStatus(firebaseManager && firebaseManager.isAvailable);
+            showToast('Language Changed', `Switched to ${currentLanguage.toUpperCase()}`, 'info', 2000);
+        });
+    }
+
+    // Enhanced header buttons
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', showSettings);
+    }
+
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+    }
+
+    const darkModeBtn = document.getElementById('darkModeBtn');
+    if (darkModeBtn) {
+        darkModeBtn.addEventListener('click', toggleDarkMode);
+    }
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearch);
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleSearch();
+        });
+    }
+    
+    if (searchBtn) {
+        searchBtn.addEventListener('click', handleSearch);
+    }
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentFilter = this.getAttribute('data-filter');
+            loadSchedule();
+        });
+    });
+
+    // Setup popup events
+    setupPopupEvents();
+    
+    // Setup keyboard shortcuts
+    setupKeyboardShortcuts();
 }
 
 // Utility Functions
@@ -1732,10 +2448,6 @@ function showInstallPrompt() {
         8000
     );
 }
-
-
-
-
 
 // Cleanup
 window.addEventListener('beforeunload', () => {
@@ -1757,4 +2469,4 @@ if (window.performance && window.performance.mark) {
     window.performance.mark('ford-pm-dashboard-loaded');
 }
 
-console.log('🚗 Ford PM Schedule Dashboard v2.0 - Fixed & Ready! 🚗');
+console.log('🚗 Ford PM Schedule Dashboard v3.0 - PIN Protection Ready! 🚗');
